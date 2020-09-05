@@ -1,13 +1,9 @@
-#include <ESP8266WiFi.h>
-#include <WiFiClient.h>
-#include <ESP8266WebServer.h>
+//this file contains all of the html and java script that is used to control an esp8266 tank drive vehicle over wifi
+//last modified by Cailean Sorce on 9/5/20
 
-ESP8266WebServer server(80);
+//HTML and java script code based on code from https://automatedhome.party/html-and-js-code-for-wifi-car/
 
-
-
-//HTML and java script code taken from https://automatedhome.party/html-and-js-code-for-wifi-car/. 
-
+//the main html code. this is sent when a new client requests the main web page
 const char mainHTML[] PROGMEM = R"====(
 <html>
   <head>
@@ -95,6 +91,8 @@ const char mainHTML[] PROGMEM = R"====(
 
 
 
+
+//java script that creats a virtual joystick:
 const char virtualJoyStickJS[] PROGMEM = R"====(
 var VirtualJoystick  = function(opts)
 {
@@ -517,39 +515,67 @@ VirtualJoystick.prototype._check3D = function()
 }
 )====";
 
+
+//include the librarys used for the wifi and web page
+#include <ESP8266WiFi.h>
+#include <WiFiClient.h>
+#include <ESP8266WebServer.h>
+
+//create a ESP8266WebServer object server, using port 80
+ESP8266WebServer server(80);
+
+
+int *joyStickXptr, *joyStickYptr; //create two pointer vars that will point to two vars passed into
+//the setUpWifi function. these pointers are used to assign the joystick X and Y values sent from a wifi client 
+//to the varaibles used in the main program
+
+//the handleRoot function is called when a wifi client requests the main web page ("(IPaddress)/"
 void handleRoot()
 {
-  server.send(200, "text/html", mainHTML);
+  server.send(200, "text/html", mainHTML); //send the main html web page to the wifi clinet
 }
 
+//the handleSendVirtualJoyStick funciton is called when the virtual joystick js code is requested (usually done by the main 
+//html web page)
 void handleSendVirtualJoyStick()
 {
-    server.send(200, "application/javascript", virtualJoyStickJS);
+    server.send(200, "application/javascript", virtualJoyStickJS); //send the virtual joystick js code to the wifi client
 }
 
+//the handleJoyStickData funciton is called when the wifi client sends a new set of joy stick XY values
 void handleJoyStickData()
 {
-  joyStickX = server.arg(0).toInt() * 10;
-  joyStickY = server.arg(1).toInt() * 10;
+  *joyStickXptr = server.arg(0).toInt(); //assign the first argument recienved to joyStickXptr
+  *joyStickYptr = server.arg(1).toInt(); //assign the second argument recieved to joyStickYptr
 
-  server.send(200, "text/plain", "");
+  server.send(200, "text/plain", ""); //respond to the server with 200 (okay) code
 }
 
-
-void setUpWiFi()
+//this function should be called in the main setup function. the following variables should be passed into the function:
+//a cstring containing the name the the wifi network should have, the password that should be required to join the wifi  
+//network (MUST BE MORE THEN 8 CHARS), two vars of type int (must be int, can't be int8_t....), these two int vars will be 
+//updated with new XY joystick values sent from the wifi client every time server.handleClient() is called.
+void setUpWiFi(char *wifiName, char *wifiPass, int& joyStickXvar, int& joyStickYvar)
 {
-  Serial.println("Setting up access point...");
-  Serial.println(WiFi.softAP(wifiName, wifiPassword) ? "WiFi is Ready" : "WiFi Failed");
+  //asign the joyStick x and y ptrs to the two var passed into the function
+  joyStickXptr = &joyStickXvar;
+  joyStickYptr = &joyStickYvar;
 
+  //set up the wifi 
+  Serial.println("Setting up access point...");
+  Serial.println(WiFi.softAP(wifiName, wifiPass) ? "WiFi is Ready" : "WiFi Failed");
+
+  //output what the IP address is
   Serial.print("IP address: ");
   Serial.println(WiFi.softAPIP());
 
+  //define what funciton should be called by each request made by the wifi clientt
   server.on("/", handleRoot);
   server.on("/virtualjoystick.js", handleSendVirtualJoyStick);
   server.on("/jsData.html", handleJoyStickData);
 
 
-  server.begin();
+  server.begin(); //start the server object
 
   Serial.println("\nServer Setup Complete.\n");
 }
