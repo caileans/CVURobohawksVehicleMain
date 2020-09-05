@@ -529,6 +529,8 @@ int *joyStickXptr, *joyStickYptr; //create two pointer vars that will point to t
 //the setUpWifi function. these pointers are used to assign the joystick X and Y values sent from a wifi client 
 //to the varaibles used in the main program
 
+void (*autoFunctionptr)(); 
+
 //the handleRoot function is called when a wifi client requests the main web page ("(IPaddress)/"
 void handleRoot()
 {
@@ -551,15 +553,28 @@ void handleJoyStickData()
   server.send(200, "text/plain", ""); //respond to the server with 200 (okay) code
 }
 
+void handleRunAutonomous()
+{
+  //run the autonomous function (via the pointer to it)
+  (*autoFunctionptr)();
+
+  //reply to the wifi client with an "okay " message
+  server.send(200, "text/plain", "");
+}
+
 //this function should be called in the main setup function. the following variables should be passed into the function:
 //a cstring containing the name the the wifi network should have, the password that should be required to join the wifi  
 //network (MUST BE MORE THEN 8 CHARS), two vars of type int (must be int, can't be int8_t....), these two int vars will be 
-//updated with new XY joystick values sent from the wifi client every time server.handleClient() is called.
-void setUpWiFi(char *wifiName, char *wifiPass, int& joyStickXvar, int& joyStickYvar)
+//updated with new XY joystick values sent from the wifi client every time server.handleClient() is called. a void funciton 
+//with no parameters should also be passed in. this funciton will be called when a client requests to run autonomous.
+void setUpWiFi(char *wifiName, char *wifiPass, int& joyStickXvar, int& joyStickYvar, void autoFunction())
 {
   //asign the joyStick x and y ptrs to the two var passed into the function
   joyStickXptr = &joyStickXvar;
   joyStickYptr = &joyStickYvar;
+
+  //assign the autofunction passed in to the autoFunctionptr
+  autoFunctionptr = autoFunction;
 
   //set up the wifi 
   Serial.println("Setting up access point...");
@@ -569,9 +584,10 @@ void setUpWiFi(char *wifiName, char *wifiPass, int& joyStickXvar, int& joyStickY
   Serial.print("IP address: ");
   Serial.println(WiFi.softAPIP());
 
-  //define what funciton should be called by each request made by the wifi clientt
+  //define what funciton should be called by each request made by the wifi client
   server.on("/", handleRoot);
   server.on("/virtualjoystick.js", handleSendVirtualJoyStick);
+  server.on("/runAutonomous", handleRunAutonomous);
   server.on("/jsData.html", handleJoyStickData);
 
 
