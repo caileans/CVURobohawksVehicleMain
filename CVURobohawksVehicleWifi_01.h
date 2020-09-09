@@ -67,14 +67,16 @@ const char mainHTML[] PROGMEM = R"====(
             <button id="run-autonomous" onclick="runAutonomous()">Run autonomous</button>
             <span id="autonomous-progress" style="display:none">Running autonomous...</span>
         </span>
-        or
-      Touch the screen to move
+      <span id="touch-message">or Touch the screen to move</span>
       <br/>
       <span id="result"></span>
     </div>
     <script src="./virtualjoystick.js"></script>
     <script>
       console.log("touchscreen is", VirtualJoystick.touchScreenAvailable() ? "available" : "not available");
+
+      const messageA = 'or Touch the screen to move';
+      const messageB = 'Touch screen disabled';
 
       var joystick  = new VirtualJoystick({
         container : document.getElementById('container'),
@@ -116,12 +118,18 @@ const char mainHTML[] PROGMEM = R"====(
           setDisplay('run-autonomous', 'none');
           setDisplay('autonomous-progress', 'inline');
 
+          document.getElementById('container').style.zIndex = -100;
+          document.getElementById('touch-message').innerHTML = messageB;
+
           var xhr = new XMLHttpRequest();
 
           xhr.onreadystatechange = function(){
               if(this.readyState == 4 && this.status == 200){
                   setDisplay('run-autonomous', 'inline');
                   setDisplay('autonomous-progress', 'none');
+
+                  document.getElementById('touch-message').innerHTML = messageA;
+                  document.getElementById('container').style.zIndex = 1;
               }
           }
           xhr.open('GET', '/runAutonomous');
