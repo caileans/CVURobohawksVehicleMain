@@ -129,7 +129,7 @@ const char mainHTML[] PROGMEM = R"====(
                   setDisplay('autonomous-progress', 'none');
 
                   document.getElementById('touch-message').innerHTML = messageA;
-                  document.getElementById('container').style.zIndex = 1;
+                  document.getElementById('container').style.zIndex = '';
               }
           }
           xhr.open('GET', '/runAutonomous');
