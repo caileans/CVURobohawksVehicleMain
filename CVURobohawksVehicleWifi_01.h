@@ -618,7 +618,7 @@ void handleRunAutonomous()
 //network (MUST BE MORE THEN 8 CHARS), two vars of type int (must be int, can't be int8_t....), these two int vars will be
 //updated with new XY joystick values sent from the wifi client every time server.handleClient() is called. a void funciton
 //with no parameters should also be passed in. this funciton will be called when a client requests to run autonomous.
-void setUpWiFi(char *wifiName, char *wifiPass, int& joyStickXvar, int& joyStickYvar, void autoFunction())
+void setUpWiFi(char *wifiName, char *wifiPass, int channel, int& joyStickXvar, int& joyStickYvar, void autoFunction())
 {
   //asign the joyStick x and y ptrs to the two var passed into the function
   joyStickXptr = &joyStickXvar;
@@ -629,7 +629,7 @@ void setUpWiFi(char *wifiName, char *wifiPass, int& joyStickXvar, int& joyStickY
 
   //set up the wifi
   Serial.println("Setting up access point...");
-  Serial.println(WiFi.softAP(wifiName, wifiPass) ? "WiFi is Ready" : "WiFi Failed");
+  Serial.println(WiFi.softAP(wifiName, wifiPass, channel, false, 1) ? "WiFi is Ready" : "WiFi Failed");
 
   //output what the IP address is
   Serial.print("IP address: ");
