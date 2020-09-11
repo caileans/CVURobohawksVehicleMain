@@ -18,17 +18,26 @@ int joyStickX = 0, joyStickY = 0; //used to store the joyStick positions. update
 Servo rightServo, leftServo; //create two servo objects
 int rightServoSpeed, leftServoSpeed; //used to store the speeds for the left and right servos
 
-const int flashButton = 0;
+const int flashButton = 0; //the flash button on the nodemcu is on GPIO 0 (thats esp8266 GPIO 0, not D0)
 
 
 //this funciton is called when the user whats to run autonomous
 void runAutonomous()
 {
-  leftServo.write(180);
+  unsigned int runTime = 2000; //the number of milliseconds that the bot should drive forward for
+
+  //set both wheels to rotate at full speed forward
+  leftServo.write(180); 
   rightServo.write(0);
 
-  delay(500);
+  //delay the program without calling delay. delay can't be called because it can mess up the web server running in the backgroud
+  unsigned long startTime = millis(); //record the current time as the start time
+  while (runTime > (millis() - startTime)) //run a while loop for runTime number of milliseconds
+  {
+    yield(); //yield to the rest of the program  (the web server part)
+  }
 
+  //stop both wheels
   leftServo.write(90);
   rightServo.write(90);
 }
@@ -37,7 +46,7 @@ void setup() {
 
   Serial.begin(115200); //begin serial communication at 115200 baude rate
 
-  setUpWiFi(wifiName, wifiPassword, joyStickX, joyStickY, runAutonomous); //set up the wifi stuff
+  setUpWiFi(wifiName, wifiPassword, 6, joyStickX, joyStickY, runAutonomous); //set up the wifi stuff
 
   rightServo.attach(D5); //attach rightservo to pin D5
   leftServo.attach(D6); //atach leftServo to pin D6
