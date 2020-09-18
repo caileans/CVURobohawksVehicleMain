@@ -10,8 +10,8 @@
 //dev board to the esp8266 GPIO numbers
 
 
-char *wifiName = "CSorceWiFi", //the name of the wifi network that will be created
-      *wifiPassword = "CaileanSorce"; //the password to join the wifi network. MUST BE >= 8 characters
+char wifiName[] = "CSorceWiFi", //the name of the wifi network that will be created
+      wifiPassword[] = "CaileanSorce"; //the password to join the wifi network. MUST BE >= 8 characters
 
 int joyStickX = 0, joyStickY = 0; //used to store the joyStick positions. updated with the wifi joystick
 
@@ -20,6 +20,8 @@ int rightServoSpeed, leftServoSpeed; //used to store the speeds for the left and
 
 const int flashButton = 0; //the flash button on the nodemcu is on GPIO 0 (thats esp8266 GPIO 0, not D0)
 
+const int rightServoError = 2; 
+const int leftServoError = 0;
 
 //this funciton is called when the user whats to run autonomous
 void runAutonomous()
@@ -46,7 +48,7 @@ void setup() {
 
   Serial.begin(115200); //begin serial communication at 115200 baude rate
 
-  setUpWiFi(wifiName, wifiPassword, 6, joyStickX, joyStickY, runAutonomous); //set up the wifi stuff
+  setUpWiFi(wifiName, wifiPassword, 8, joyStickX, joyStickY, runAutonomous); //set up the wifi stuff
 
   rightServo.attach(D5); //attach rightservo to pin D5
   leftServo.attach(D6); //atach leftServo to pin D6
@@ -58,10 +60,12 @@ void setup() {
 }
 
 void loop() {
+  ESP.wdtFeed();
+
   server.handleClient(); //get any new info from the wifi client
 
-  rightServoSpeed = map(-(joyStickY - joyStickX)/2, -100, 100, 0, 180); //calculate the value the right servo should spin at (0 = backwards, 90 = stop, 180 = forwards)
-  leftServoSpeed = map((joyStickY + joyStickX)/2, -100, 100, 0, 180); //calulate the value the left servo should spin at (0 = backwards, 90 = stop, 180 = forwards)
+  rightServoSpeed = map(-(joyStickY - joyStickX)/2, -71, 71, 0, 180) + rightServoError; //calculate the value the right servo should spin at (0 = backwards, 90 = stop, 180 = forwards)
+  leftServoSpeed = map((joyStickY + joyStickX)/2, -71, 71, 0, 180) + leftServoError; //calulate the value the left servo should spin at (0 = backwards, 90 = stop, 180 = forwards)
 
   //print out the follwoing info to the serial monitor for debugging
   Serial.print("Xjoy = "); Serial.println(joyStickX);

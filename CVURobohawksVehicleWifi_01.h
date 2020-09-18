@@ -627,13 +627,17 @@ void setUpWiFi(char *wifiName, char *wifiPass, int channel, int& joyStickXvar, i
   //assign the autofunction passed in to the autoFunctionptr
   autoFunctionptr = autoFunction;
 
+  ESP.eraseConfig();
+
   //set up the wifi
   Serial.println("Setting up access point...");
   Serial.println(WiFi.softAP(wifiName, wifiPass, channel, false, 1) ? "WiFi is Ready" : "WiFi Failed");
 
   //output what the IP address is
-  Serial.print("IP address: ");
+  Serial.print("AP IP address: ");
   Serial.println(WiFi.softAPIP());
+
+  //WiFi.printDiag(Serial);
 
   //define what funciton should be called by each request made by the wifi client
   server.on("/", handleRoot);
