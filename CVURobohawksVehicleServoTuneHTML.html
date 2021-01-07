@@ -1,0 +1,242 @@
+R"====(
+
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+
+    <style>
+        body {
+            overflow: hidden;
+            padding: 0;
+            margin: 0;
+            background-color: #BBB;
+            /* border: 5px solid black */
+        }
+
+        #title {
+            position: relative;
+            top: 8px;
+            width: 100%;
+            padding: 10px;
+            text-align: center;
+            font-size: 18pt;
+        }
+
+        #sliders {
+            position: absolute;
+            /* padding: 10px; */
+            width: 100%;
+            /* bottom: 150px; */
+            top: 70px;
+            text-align: center;
+            /* border: 1px solid grey; */
+        }
+
+
+        span#left-servo {
+            position: absolute;
+            padding: 0px;
+            width: 100px;
+            height: 100%;
+            transform: translate(-50%, 0);
+            left: 30%;
+            /* border: 1px solid green; */
+        }
+
+        span#right-servo {
+            position: absolute;
+            padding: 0px;
+            width: 100px;
+            height: 100%;
+            transform: translate(-50%, 0);
+            left: 70%;
+            /* border: 1px solid green; */
+        }
+
+        #left-servo-slide,
+        #right-servo-slide {
+            position: absolute;
+            width: calc(100vh - 300px);
+            transform: translate(-50%, -50%) rotate(270deg);
+            left: 50%;
+            top: calc(50vh - 100px);
+            /* width: 100%; */
+
+
+            appearance: none;
+            height: 15px;
+            background: rgb(153, 0, 0);
+            outline: none;
+            opacity: 0.7;
+            -webkit-transition: .2s;
+            transition: opacity .2s;
+        }
+
+        #left-servo-slide::-webkit-slider-thumb,
+        #right-servo-slide::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #000000;
+            cursor: pointer;
+        }
+
+        #left-servo-slide::-moz-range-thumb,
+        #right-servo-slide::-moz-range-thumb {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #000000;
+            cursor: pointer;
+        }
+
+        span#left-servo-value,
+        span#right-servo-value {
+            position: absolute;
+            width: 110px;
+            transform: translate(-50%, 0);
+            top: 0;
+            left: 50%;
+            text-align: center;
+            font-size: 14pt;
+            /* border: 1px solid blue; */
+        }
+
+
+        #left-servo-val-field,
+        #right-servo-val-field {
+            position: relative;
+            width: 8ch;
+            font-size: 14pt;
+        }
+
+
+        #btns {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            height: 50px;
+            padding: 5px;
+            text-align: center;
+            /* border: 1px solid cyan; */
+        }
+
+        #save-btn {
+            background-color: rgb(185, 0, 0);
+            font-size: 14pt;
+            font-weight: bold;
+        }
+
+        #main-page-link {
+            font-size: 14pt;
+        }
+    </style>
+</head>
+
+<body>
+    <h3 id="title">Servo Error Adjustment</h3>
+    <div id="info">
+
+    </div>
+    <div id="sliders">
+        <span id="left-servo">
+            <span id="left-servo-value"><input type="number" , id="left-servo-val-field"> uS</span>
+            <input type="range" , id="left-servo-slide">
+        </span>
+        <span id="right-servo">
+            <span id="right-servo-value"><input type="number" , id="right-servo-val-field"> uS</span>
+            <input type="range" , id="right-servo-slide">
+        </span>
+    </div>
+    <div id="btns">
+        <button id="save-btn" , onclick="confirmSave()">Save Mid Positions</button>
+        </br>
+        </br>
+        <a href="./CVURobohawksVehicleControlHTML.html" id="main-page-link">Return to control page</a>
+    </div>
+
+
+    <script>
+        var maxServoVal = "500";
+        var minServoVal = "-500";
+
+        var rightServoSlider = document.getElementById("right-servo-slide");
+        var rightServoVal = document.getElementById("right-servo-val-field");
+        var leftServoSlider = document.getElementById("left-servo-slide");
+        var leftServoVal = document.getElementById("left-servo-val-field");
+
+        leftServoSlider.min = rightServoSlider.min = leftServoVal.min = rightServoVal.min = minServoVal;
+        leftServoSlider.max = rightServoSlider.max = leftServoVal.max = rightServoVal.max = maxServoVal;
+        getInitialPositions();
+
+
+        leftServoSlider.addEventListener("input", updateElValue(leftServoVal), false);
+        rightServoSlider.addEventListener("input", updateElValue(rightServoVal), false);
+        leftServoVal.addEventListener("input", updateElValue(leftServoSlider), false);
+        rightServoVal.addEventListener("input", updateElValue(rightServoSlider), false);
+
+
+        function updateElValue(elToUpdate) {
+            return function _updateElValue(evt) {
+                elToUpdate.value = evt.currentTarget.value;
+            }
+        }
+
+
+        function confirmSave() {
+            if (confirm("Are you sure you want to save?" +
+                "       Saving writes to flash memory, which can only be re-written a limited number of times.")) {
+                var xhr = new XMLHttpRequest();
+                xhr.open('PUT', "./saveServoErrors")
+                xhr.send();
+
+                console.log("save info");
+            } else {
+                console.log("not saving");
+            }
+        }
+
+        function getInitialPositions() {
+            var xhr = new XMLHttpRequest();
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === xhr.DONE && xhr.status === 200) {
+                    console.log(xhr.response);
+                    var response = new URLSearchParams(xhr.responseText);
+
+                    leftServoSlider.value = leftServoVal.value = response.get("l");
+                    rightServoSlider.value = rightServoVal.value = response.get("r");
+                }
+            }
+            xhr.open('GET', './servoErrors');
+            xhr.send();
+        }
+
+
+        var prevLeft = 0;
+        var prevRight = 0;
+        var newLeft = 0;
+        var newRight = 0;
+
+        setInterval(function () {
+            newLeft = leftServoVal.value;
+            newRight = rightServoVal.value;
+            if (newLeft != prevLeft || newRight != prevRight) {
+                var xhr = new XMLHttpRequest();
+                xhr.open('PUT', "./servoErrors.html?l=" + newLeft + "&r=" + newRight)
+                xhr.send();
+                prevLeft = newLeft;
+                prevRight = newRight;
+            }
+        }, 1 / 10 * 1000);
+
+    </script>
+</body>
+
+</html>
+
+)====";
