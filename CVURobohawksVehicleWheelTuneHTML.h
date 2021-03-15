@@ -35,7 +35,7 @@ R"====(
         }
 
 
-        span#left-servo {
+        span#left-wheel {
             position: absolute;
             padding: 0px;
             width: 100px;
@@ -45,7 +45,7 @@ R"====(
             /* border: 1px solid green; */
         }
 
-        span#right-servo {
+        span#right-wheel {
             position: absolute;
             padding: 0px;
             width: 100px;
@@ -55,8 +55,8 @@ R"====(
             /* border: 1px solid green; */
         }
 
-        #left-servo-slide,
-        #right-servo-slide {
+        #left-wheel-slide,
+        #right-wheel-slide {
             position: absolute;
             width: calc(100vh - 300px);
             transform: translate(-50%, -50%) rotate(270deg);
@@ -74,8 +74,8 @@ R"====(
             transition: opacity .2s;
         }
 
-        #left-servo-slide::-webkit-slider-thumb,
-        #right-servo-slide::-webkit-slider-thumb {
+        #left-wheel-slide::-webkit-slider-thumb,
+        #right-wheel-slide::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
             width: 35px;
@@ -85,8 +85,8 @@ R"====(
             cursor: pointer;
         }
 
-        #left-servo-slide::-moz-range-thumb,
-        #right-servo-slide::-moz-range-thumb {
+        #left-wheel-slide::-moz-range-thumb,
+        #right-wheel-slide::-moz-range-thumb {
             width: 35px;
             height: 35px;
             border-radius: 50%;
@@ -94,8 +94,8 @@ R"====(
             cursor: pointer;
         }
 
-        span#left-servo-value,
-        span#right-servo-value {
+        span#left-wheel-value,
+        span#right-wheel-value {
             position: absolute;
             width: 110px;
             transform: translate(-50%, 0);
@@ -107,8 +107,8 @@ R"====(
         }
 
 
-        #left-servo-val-field,
-        #right-servo-val-field {
+        #left-wheel-val-field,
+        #right-wheel-val-field {
             position: relative;
             width: 8ch;
             font-size: 14pt;
@@ -138,18 +138,16 @@ R"====(
 </head>
 
 <body>
-    <h3 id="title">Servo Error Adjustment</h3>
-    <div id="info">
+    <h3 id="title">Wheel Error Adjustment</h3>
 
-    </div>
     <div id="sliders">
-        <span id="left-servo">
-            <span id="left-servo-value"><input type="number" , id="left-servo-val-field"> uS</span>
-            <input type="range" , id="left-servo-slide">
+        <span id="left-wheel">
+            <span id="left-wheel-value"><input type="number" , id="left-wheel-val-field"> uS</span>
+            <input type="range" , id="left-wheel-slide">
         </span>
-        <span id="right-servo">
-            <span id="right-servo-value"><input type="number" , id="right-servo-val-field"> uS</span>
-            <input type="range" , id="right-servo-slide">
+        <span id="right-wheel">
+            <span id="right-wheel-value"><input type="number" , id="right-wheel-val-field"> uS</span>
+            <input type="range" , id="right-wheel-slide">
         </span>
     </div>
     <div id="btns">
@@ -161,23 +159,23 @@ R"====(
 
 
     <script>
-        var maxServoVal = "500";
-        var minServoVal = "-500";
+        var maxWheelVal = "500";
+        var minWheelVal = "-500";
 
-        var rightServoSlider = document.getElementById("right-servo-slide");
-        var rightServoVal = document.getElementById("right-servo-val-field");
-        var leftServoSlider = document.getElementById("left-servo-slide");
-        var leftServoVal = document.getElementById("left-servo-val-field");
+        var rightWheelSlider = document.getElementById("right-wheel-slide");
+        var rightWheelVal = document.getElementById("right-wheel-val-field");
+        var leftWheelSlider = document.getElementById("left-wheel-slide");
+        var leftWheelVal = document.getElementById("left-wheel-val-field");
 
-        leftServoSlider.min = rightServoSlider.min = leftServoVal.min = rightServoVal.min = minServoVal;
-        leftServoSlider.max = rightServoSlider.max = leftServoVal.max = rightServoVal.max = maxServoVal;
+        leftWheelSlider.min = rightWheelSlider.min = leftWheelVal.min = rightWheelVal.min = minWheelVal;
+        leftWheelSlider.max = rightWheelSlider.max = leftWheelVal.max = rightWheelVal.max = maxWheelVal;
         getInitialPositions();
 
 
-        leftServoSlider.addEventListener("input", updateElValue(leftServoVal), false);
-        rightServoSlider.addEventListener("input", updateElValue(rightServoVal), false);
-        leftServoVal.addEventListener("input", updateElValue(leftServoSlider), false);
-        rightServoVal.addEventListener("input", updateElValue(rightServoSlider), false);
+        leftWheelSlider.addEventListener("input", updateElValue(leftWheelVal), false);
+        rightWheelSlider.addEventListener("input", updateElValue(rightWheelVal), false);
+        leftWheelVal.addEventListener("input", updateElValue(leftWheelSlider), false);
+        rightWheelVal.addEventListener("input", updateElValue(rightWheelSlider), false);
 
 
         function updateElValue(elToUpdate) {
@@ -191,7 +189,7 @@ R"====(
             if (confirm("Are you sure you want to save?" +
                 "       Saving writes to flash memory, which can only be re-written a limited number of times.")) {
                 var xhr = new XMLHttpRequest();
-                xhr.open('PUT', "./saveServoErrors")
+                xhr.open('PUT', "./saveWheelErrors")
                 xhr.send();
 
                 console.log("save info");
@@ -208,11 +206,11 @@ R"====(
                     console.log(xhr.response);
                     var response = new URLSearchParams(xhr.responseText);
 
-                    leftServoSlider.value = leftServoVal.value = response.get("l");
-                    rightServoSlider.value = rightServoVal.value = response.get("r");
+                    leftWheelSlider.value = leftWheelVal.value = response.get("l");
+                    rightWheelSlider.value = rightWheelVal.value = response.get("r");
                 }
             }
-            xhr.open('GET', './servoErrors');
+            xhr.open('GET', './wheelErrors');
             xhr.send();
         }
 
@@ -223,11 +221,11 @@ R"====(
         var newRight = 0;
 
         setInterval(function () {
-            newLeft = leftServoVal.value;
-            newRight = rightServoVal.value;
+            newLeft = leftWheelVal.value;
+            newRight = rightWheelVal.value;
             if (newLeft != prevLeft || newRight != prevRight) {
                 var xhr = new XMLHttpRequest();
-                xhr.open('PUT', "./servoErrors.html?l=" + newLeft + "&r=" + newRight)
+                xhr.open('PUT', "./wheelErrors.html?l=" + newLeft + "&r=" + newRight)
                 xhr.send();
                 prevLeft = newLeft;
                 prevRight = newRight;
@@ -239,4 +237,4 @@ R"====(
 
 </html>
 
-)====";
+)===="

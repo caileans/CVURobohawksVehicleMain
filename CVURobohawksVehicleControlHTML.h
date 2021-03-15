@@ -45,7 +45,7 @@ R"====(
             /* border: solid 2px red; */
         }
 
-        #servo-adjust {
+        #wheel-adjust {
             position: absolute;
             bottom: 0px;
             width: 100%;
@@ -89,8 +89,8 @@ R"====(
 
     </div>
 
-    <div id="servo-adjust">
-        <a href="./CVURobohawksVehicleServoTuneHTML.html" id="servo-adjust-link">Adjust servo error</a>
+    <div id="wheel-adjust">
+        <a href="./CVURobohawksVehicleWheelTuneHTML.html" id="wheel-adjust-link">Adjust wheel error</a>
     </div>
     <script src="./CVURobohawksVehicleJoyStick.js"></script>
     <script>
@@ -105,7 +105,7 @@ R"====(
             limitStickTravel: true,
             stationaryBase: true,
             centerBase: true,
-            sprungStick: true,
+            sprungStick: false,
             baseOutlineColor: 'black',
             baseCenterColor: 'black',
             stickColor: "rgba(255, 0, 0, 0.75)",
@@ -168,4 +168,4 @@ R"====(
 
 </html>
 
-)====";
+)===="

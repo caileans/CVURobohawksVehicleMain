@@ -443,4 +443,4 @@ VirtualJoystick.prototype._check3D = function () {
     return exports;
 }
 
-    )====";
+    )===="

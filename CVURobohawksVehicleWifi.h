@@ -1,27 +1,21 @@
-//this file contains all of set up code needed to control an esp8266 tank drive vehicle over wifi
-//last modified by Cailean Sorce on 9/5/20
 
-//HTML and java script code  (in CVURobohawksVehicleControlHTML.html and CVURobohawksVehicleJoyStick.js)
-//based on code from https://automatedhome.party/html-and-js-code-for-wifi-car/
+/**
+ * @file CVURobohawksVehicleWiFi
+ * @class CVURobohawksVehicleWiFi
+ * @brief Contains CVURobohawksVehicleWiFi class, used to set up wifi on ESP8266 to control a tankdrive type vehicle
+ * 
+ * conatains a set up function, which should be called in setup(), and a refreshWifi function, which should be called in loop()
+ * 
+ * @author Cailean Sorce
+ * @date 1/11/2021
+ */
+
+//define a debug macro
 #ifndef NO_DEBUG_SERIAL
 #define DEBUG_SERIAL(message) (Serial.print(message))
 #else
 #define DEBUG_SERIAL(message) ((void)0)
 #endif
-
-//the main html code. this is sent when a new client requests the main web page
-const char vehicleControlHTML[] PROGMEM =
-#include "C:\\Users\Cailean\\Documents\\Arduino\\CVURobohawksVehicleMain\\CVURobohawksVehicleControlHTML.html"
-
-//java script that creates a virtual joystick:
-const char virtualJoyStickJS[] PROGMEM =
-#include "C:\\Users\\Cailean\Documents\\Arduino\\CVURobohawksVehicleMain\\CVURobohawksVehicleJoyStick.js"
-
-
-//the html for fine tuning the servo mid positions
-const char servoTuneHTML[] PROGMEM =
-#include "C:\\Users\\Cailean\\Documents\\Arduino\\CVURobohawksVehicleMain\\CVURobohawksVehicleServoTuneHTML.html"
-
 
 //include the library's used for the wifi and web page
 #include <ESP8266WiFi.h>
@@ -29,147 +23,184 @@ const char servoTuneHTML[] PROGMEM =
 #include <ESP8266WebServer.h>
 
 
-//create a ESP8266WebServer object server, using port 80
-ESP8266WebServer server(80);
-
-int *joyStickXPtr, *joyStickYPtr; //create two pointer vars that will point to two vars passed into
-//the setUpWifi function. these pointers are used to assign the joystick X and Y values sent from a wifi client
-//to the variables used in the main program
-
-void (*autoFunctionptr)(); //a pointer used to call a autonomous function
-void (*saveServoErrorFunctionPtr)(int, int);
-
-int *leftServoErrorPtr, *rightServoErrorPtr;
-
-//the handleSendVehicleControlHTML function is called when a wifi client requests the main web page ("(IPaddress)/"
-void handleSendVehicleControlHTML()
+class CVURobohawksVehicleWiFi
 {
-  server.send(200, "text/html", vehicleControlHTML); //send the main html web page to the wifi clinet
-}
 
-void handleSendServoTuneHTML()
-{
-  server.send(200, "text/html", servoTuneHTML);
-}
+private:
+  //the main html code. this is sent when a new client requests the main web page
+  const char vehicleControlHTML[] PROGMEM =
+#include "CVURobohawksVehicleControlHTML.h"
+      ;
 
-//the handleSendVirtualJoyStick function is called when the virtual joystick js code is requested (usually done by the main
-//html web page)
-void handleSendVirtualJoyStick()
-{
-  server.send(200, "application/javascript", virtualJoyStickJS); //send the virtual joystick js code to the wifi client
-}
+  //java script that creates a virtual joystick:
+  const char virtualJoyStickJS[] PROGMEM =
+#include "CVURobohawksVehicleJoyStickJS.h"
+      ;
 
-//the handleJoyStickData function is called when the wifi client sends a new set of joy stick XY values
-void handleJoyStickData()
-{
-  DEBUG_SERIAL("updating joyStick possitions\n");
+  //the html for fine tuning the servo mid positions
+  const char wheelTuneHTML[] PROGMEM =
+#include "CVURobohawksVehicleWheelTuneHTML.h"
+      ;
 
-  *joyStickXPtr = server.arg("x").toInt(); //assign the first argument received to joyStickXPtr
-  *joyStickYPtr = server.arg("y").toInt(); //assign the second argument received to joyStickYPtr
+  //create a ESP8266WebServer object server, using port 80
+  ESP8266WebServer server(80);
 
-  server.send(200, "text/plain", ""); //respond to the server with 200 (okay) code
-}
+  int *joyStickXPtr, *joyStickYPtr; //create two pointer vars that will point to two vars passed into
+  //the setUpWiFi function. these pointers are used to assign the joystick X and Y values sent from a wifi client
+  //to the variables used in the main program
 
-//this function is called when the main controller page requests autonomous to be run
-void handleRunAutonomous()
-{
-  DEBUG_SERIAL("running autonomous\n");
-  //run the autonomous function (via the pointer to it)
-  (*autoFunctionptr)();
+  void (*autoFunctionptr)(); //a pointer used to call a autonomous function
+  void (*saveWheelErrorFunctionPtr)(int, int);
 
-  //reply to the wifi client with an "okay " message
-  server.send(200, "text/plain", "");
-}
+  int *leftWheelErrorPtr, *rightWheelErrorPtr;
 
-//this function is called when the servo mid position adjust page requests the positions be saved
-void handleSaveServoErrors()
-{
-  DEBUG_SERIAL("saving servo mid positions: left=");
-  DEBUG_SERIAL(*leftServoErrorPtr);
-  DEBUG_SERIAL(" right=");
-  DEBUG_SERIAL(*rightServoErrorPtr);
-  DEBUG_SERIAL("\n");
+  //this function is called when a wifi client requests the main web page ("[IPaddress]/")
+  void handleSendVehicleControlHTML()
+  {
+    server.send(200, "text/html", vehicleControlHTML); //send the main html web page to the wifi clinet
+  }
 
-  (*saveServoErrorFunctionPtr)(*leftServoErrorPtr, *rightServoErrorPtr);
+  void handleSendWheelTuneHTML()
+  {
+    server.send(200, "text/html", wheelTuneHTML);
+  }
 
-  //reply to the wifi client with an "okay " message
-  server.send(200, "text/plain", "");
-}
+  //this function is called when the virtual joystick js code is requested (usually done by the main
+  //html web page)
+  void handleSendVirtualJoyStick()
+  {
+    server.send(200, "application/javascript", virtualJoyStickJS); //send the virtual joystick js code to the wifi client
+  }
 
-//this function is called when the servo mid position adjust page requests the current servo mid positions
-void handleSendServoErrors()
-{
-  DEBUG_SERIAL("sending ServoPositions:  ");
+  //the handleJoyStickData function is called when the wifi client sends a new set of joy stick XY values
+  void handleJoyStickData()
+  {
+    DEBUG_SERIAL("updating joyStick possitions\n");
 
-  //build the string to send
-  char info[15] = "l=";
-  itoa((*leftServoErrorPtr), info + strlen(info), 10);
-  strcat(info, "&r=");
-  itoa((*rightServoErrorPtr), info + strlen(info), 10);
+    *joyStickXPtr = server.arg("x").toInt(); //assign the first argument received to joyStickXPtr
+    *joyStickYPtr = server.arg("y").toInt(); //assign the second argument received to joyStickYPtr
 
-  DEBUG_SERIAL(info); DEBUG_SERIAL("\n");
-  //send the current servo mid positions to the page
-  server.send(200, "text/plain", info);
-}
+    server.send(200, "text/plain", ""); //respond to the server with 200 (okay) code
+  }
 
-void handleUpdateServoErrors()
-{
-  DEBUG_SERIAL("updating servo errors\n");
+  //this function is called when the main controller page requests autonomous to be run
+  void handleRunAutonomous()
+  {
+    DEBUG_SERIAL("running autonomous\n");
+    //run the autonomous function (via the pointer to it)
+    (*autoFunctionptr)();
 
-  *joyStickXPtr = *joyStickYPtr = 0;
+    //reply to the wifi client with an "okay " message
+    server.send(200, "text/plain", "");
+  }
 
-  *leftServoErrorPtr = server.arg(0).toInt();  //assign the first argument received
-  *rightServoErrorPtr = server.arg(1).toInt(); //assign the second argument received
+  //this function is called when the wheel tune page requests the offsets be saved
+  void handleSaveWheelErrors()
+  {
+    DEBUG_SERIAL("saving servo mid positions: left=");
+    DEBUG_SERIAL(*leftWheelErrorPtr);
+    DEBUG_SERIAL(" right=");
+    DEBUG_SERIAL(*rightWheelErrorPtr);
+    DEBUG_SERIAL("\n");
 
-  server.send(200, "text/plain", "");
-}
+    (*saveWheelErrorFunctionPtr)(*leftWheelErrorPtr, *rightWheelErrorPtr);
 
+    //reply to the wifi client with an "okay " message
+    server.send(200, "text/plain", "");
+  }
 
+  //this function is called when the wheel tune page requests the current wheel offsets
+  void handleSendWheelErrors()
+  {
+    DEBUG_SERIAL("sending ServoPositions:  ");
 
-//this function should be called in the main setup function. the following variables should be passed into the function:
-//a cstring containing the name the the wifi network should have, the password that should be required to join the wifi
-//network (MUST BE MORE THEN 8 CHARS), two vars of type int (must be int, can't be int8_t....), these two int vars will be
-//updated with new XY joystick values sent from the wifi client every time server.handleClient() is called. a void function
-//with no parameters should also be passed in. this function will be called when a client requests to run autonomous.
-void setUpWiFi(char *wifiName, char *wifiPass, int channel, int &joyStickXVar, int &joyStickYVar,
-               int &leftServoError, int &rightServoError, void saveServoErrorFunction(int, int), void autoFunction())
-{
-  //assign the joyStick x and y ptrs to the two var passed into the function
-  joyStickXPtr = &joyStickXVar;
-  joyStickYPtr = &joyStickYVar;
+    //build the string to send
+    char info[15] = "l=";
+    itoa((*leftWheelErrorPtr), info + strlen(info), 10);
+    strcat(info, "&r=");
+    itoa((*rightWheelErrorPtr), info + strlen(info), 10);
 
-  leftServoErrorPtr = &leftServoError;
-  rightServoErrorPtr = &rightServoError;
+    DEBUG_SERIAL(info);
+    DEBUG_SERIAL("\n");
+    //send the current servo mid positions to the page
+    server.send(200, "text/plain", info);
+  }
 
-  //assign the autofunction passed in to the autoFunctionptr
-  autoFunctionptr = autoFunction;
+  //this is called when the wheel tune page sends new offset values for the wheels
+  void handleUpdateWheelErrors()
+  {
+    DEBUG_SERIAL("updating servo errors\n");
 
-  saveServoErrorFunctionPtr = saveServoErrorFunction;
+    *joyStickXPtr = *joyStickYPtr = 0;
 
-  ESP.eraseConfig();
+    *leftWheelErrorPtr = server.arg(0).toInt();  //assign the first argument received
+    *rightWheelErrorPtr = server.arg(1).toInt(); //assign the second argument received
 
-  //set up the wifi
-  Serial.println("Setting up access point...");
-  Serial.println(WiFi.softAP(wifiName, wifiPass, channel, false, 1) ? "WiFi is Ready" : "WiFi Failed");
+    server.send(200, "text/plain", "");
+  }
 
-  //output what the IP address is
-  Serial.print("AP IP address: ");
-  Serial.println(WiFi.softAPIP());
+public:
+  /**
+ * @brief Creates a WiFi network and initializes an interface allowing control of a tankdrive vehicle with servo wheels over the WiFi network
+ * @param wifiName A cstring containing the name of the wifi network to be created 
+ * @param wifiPass A cstring containing the password for the wifi network (MUST BE MORE THEN 8 CHARS)
+ * @param channel An integer [0, 14]. This is the wifi channel that will be used
+ * @param joyStickXVar A integer variable used to store the X value of the virtual joyStick
+ * @param joyStickYVar A integer variable used to store the Y value of the virtual joyStick
+ * @param leftWheelError A integer variable used to store the error for the left servo
+ * @param rightWheelError A interger variable used to store the error for the right servo
+ * @param saveWheelErrorFunction A void type function with to integer paramenters. This function will be called 
+ * with the left and right servo errors as parameters when the user wishes to "save the servo errors"
+ * @param autoFunction A void type function with no parameters. This function will be called when the user wishes to "run autonomous"
+ */
+  void setUpWiFi(char *wifiName, char *wifiPass, int channel, int &joyStickXVar, int &joyStickYVar,
+                 int &leftWheelError, int &rightWheelError, void saveWheelErrorFunction(int, int), void autoFunction())
+  {
+    //assign the joyStick x and y ptrs to the two var passed into the function
+    joyStickXPtr = &joyStickXVar;
+    joyStickYPtr = &joyStickYVar;
 
-  //WiFi.printDiag(Serial);
+    leftWheelErrorPtr = &leftWheelError;
+    rightWheelErrorPtr = &rightWheelError;
 
-  //define what function should be called by each request made by the wifi client
-  server.on("/", handleSendVehicleControlHTML);
-  server.on("/CVURobohawksVehicleControlHTML.html", handleSendVehicleControlHTML);
-  server.on("/CVURobohawksVehicleServoTuneHTML.html", handleSendServoTuneHTML);
-  server.on("/CVURobohawksVehicleJoyStick.js", handleSendVirtualJoyStick);
-  server.on("/runAutonomous", handleRunAutonomous);
-  server.on("/jsData.html", handleJoyStickData);
-  server.on("/saveServoErrors", handleSaveServoErrors);
-  server.on("/servoErrors", handleSendServoErrors);
-  server.on("/servoErrors.html", handleUpdateServoErrors);
+    //assign the autofunction passed in to the autoFunctionptr
+    autoFunctionptr = autoFunction;
 
-  server.begin(); //start the server object
+    saveWheelErrorFunctionPtr = saveWheelErrorFunction;
 
-  Serial.println("\nServer Setup Complete.\n");
+    ESP.eraseConfig();
+
+    //set up the wifi
+    Serial.println("Setting up access point...");
+    Serial.println(WiFi.softAP(wifiName, wifiPass, channel, false, 1) ? "WiFi is Ready" : "WiFi Failed");
+
+    //output what the IP address is
+    Serial.print("AP IP address: ");
+    Serial.println(WiFi.softAPIP());
+
+    //WiFi.printDiag(Serial);
+
+    //define what function should be called by each request made by the wifi client
+    server.on("/", handleSendVehicleControlHTML);
+    server.on("/CVURobohawksVehicleControlHTML.html", handleSendVehicleControlHTML);
+    server.on("/CVURobohawksVehicleServoTuneHTML.html", handleSendWheelTuneHTML);
+    server.on("/CVURobohawksVehicleJoyStick.js", handleSendVirtualJoyStick);
+    server.on("/runAutonomous", handleRunAutonomous);
+    server.on("/jsData.html", handleJoyStickData);
+    server.on("/saveWheelErrors", handleSaveWheelErrors);
+    server.on("/wheelErrors", handleSendWheelErrors);
+    server.on("/wheelErrors.html", handleUpdateWheelErrors);
+
+    server.begin(); //start the server object
+
+    Serial.println("\nServer Setup Complete.\n");
+  }
+
+/**
+ * @brief checks for any updates from the wifi client (the controller)
+ */
+  void refreshWiFi()
+  {
+    server.handleClient();
+  }
 }
