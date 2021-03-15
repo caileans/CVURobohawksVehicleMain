@@ -1,5 +1,7 @@
 # CVURobohawksArduinoVehicle
 
+- CVURobohawksVehicleControlHTML.html and CVURobohawksVehicleJoyStick.js based on code from https://automatedhome.party/html-and-js-code-for-wifi-car/
+
 Dependencies:
 - Arduino/ESP8266 Servo.h library
 - CaileanSorce_nodemcuESP8266_pinDefinitions.h ; contains the following definitions:
