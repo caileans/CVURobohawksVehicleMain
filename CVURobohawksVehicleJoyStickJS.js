@@ -1,4 +1,4 @@
-R"====(
+// R"====(
 
 var VirtualJoystick = function (opts) {
     opts = opts || {};
@@ -224,6 +224,10 @@ VirtualJoystick.prototype._onDown = function (x, y) {
     this._move(this._stickEl.style, (this._stickX - this._stickEl.width / 2), (this._stickY - this._stickEl.height / 2));
 }
 
+VirtualJoystick.prototype._onDownIncremental = function () {
+    this._pressed = true;
+}
+
 VirtualJoystick.prototype._onMove = function (x, y) {
     if (this._pressed === true) {
         this._stickX = x  - this._container.getBoundingClientRect().left;
@@ -242,6 +246,15 @@ VirtualJoystick.prototype._onMove = function (x, y) {
             }
         }
 
+        this._stickEl.style.display = "";
+        this._move(this._stickEl.style, (this._stickX - this._stickEl.width / 2), (this._stickY - this._stickEl.height / 2));
+    }
+}
+
+VirtualJoystick.prototype._onMoveIncremental = function (x, y) {
+    if (this._pressed === true) {
+        this._stickX = x  + this._container.getBoundingClientRect().width/2;
+        this._stickY = y  + this._container.getBoundingClientRect().height/2;
         this._move(this._stickEl.style, (this._stickX - this._stickEl.width / 2), (this._stickY - this._stickEl.height / 2));
     }
 }
@@ -443,4 +456,4 @@ VirtualJoystick.prototype._check3D = function () {
     return exports;
 }
 
-    )===="
+    // )===="

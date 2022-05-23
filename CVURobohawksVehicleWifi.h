@@ -29,17 +29,17 @@ class CVURobohawksVehicleWiFi
 private:
   //the main html code. this is sent when a new client requests the main web page
   const char vehicleControlHTML[] PROGMEM =
-#include "CVURobohawksVehicleControlHTML.h"
+#include "CVURobohawksVehicleControlHTML.html"
       ;
 
   //java script that creates a virtual joystick:
   const char virtualJoyStickJS[] PROGMEM =
-#include "CVURobohawksVehicleJoyStickJS.h"
+#include "CVURobohawksVehicleJoyStickJS.js"
       ;
 
   //the html for fine tuning the servo mid positions
   const char wheelTuneHTML[] PROGMEM =
-#include "CVURobohawksVehicleWheelTuneHTML.h"
+#include "CVURobohawksVehicleWheelTuneHTML.html"
       ;
 
   //create a ESP8266WebServer object server, using port 80
