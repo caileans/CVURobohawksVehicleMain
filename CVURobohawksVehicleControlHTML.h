@@ -1,4 +1,4 @@
-<!-- R"====( -->
+R"====(
 
 <html>
 
@@ -32,10 +32,6 @@
             text-align: center;
         }
 
-        #joy-containers {
-            
-        }
-
         #joy-container {
             position: absolute;
             width: 25%;
@@ -46,22 +42,8 @@
             margin: 0;
             -webkit-user-select: none;
             -moz-user-select: none;
-            border: solid 2px red;
+            /* border: solid 2px red; */
             
-        }
-
-        #joy-container2 {
-            position: absolute;
-            width: 25%;
-            top: 400px;
-            left: 500px;
-            height: calc(100vh - 200px);
-            overflow: hidden;
-            padding: 0;
-            margin: 0;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            border: solid 2px red;
         }
 
         #wheel-adjust {
@@ -94,9 +76,7 @@
 
 <body>
     <h3 id="title">ESP8266 Vehicle Control</h3>
-    <div id="joy-containers">
     <div id="joy-container"></div>
-    <div id="joy-container2"></div></div>
 
     <div id="info">
         <span id="button">
@@ -132,35 +112,6 @@
             stickColor: "rgba(255, 0, 0, 0.75)",
 
         });
-
-        var joystick2 = new VirtualJoystick({
-            container: document.getElementById('joy-container2'),
-            mouseSupport: true,
-            limitStickTravel: true,
-            stationaryBase: true,
-            centerBase: true,
-            sprungStick: false,
-            baseOutlineColor: 'black',
-            baseCenterColor: 'black',
-            stickColor: "rgba(255, 0, 0, 0.75)",
-
-        });
-
-        // setInterval_realStickControl(function () {
-
-        //     //check if realstick !=0
-        //     //if it doesn't, get the position and set the virtual joy to be controlled by it
-        //     joystick._onDownIncremental();
-        //     //move the virtual joy to the correct position
-        //     joystick._onMoveIncrememental(0, 0);
-        //     //if the realsitck =0, release the virtual stick.(and set to 0)
-        //     joystick._onUp();
-
-        //     //and make it still work if the real stick isn't connected
-            
-        // }, 1 / 10 * 1000);
-        joystick._onDownIncremental();
-        joystick._onMoveIncremental(10, 10);
 
         joystick.addEventListener('touchStart', function () {
             console.log('down')
@@ -221,4 +172,4 @@
 
 </html>
 
-<!-- )====" -->
+)===="

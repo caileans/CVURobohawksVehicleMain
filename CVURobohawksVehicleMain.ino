@@ -8,7 +8,7 @@
 // include the necessary files
 #include <Servo.h> //used to easily control the wheel servos
 #include <EEPROM.h> //used to store the servo errors in EEPROM (flash) memoory, so that it can be saved through power down
-#include "CVURobohawksVehicleWifi.h" //contains the html + js and funcitons used to set up and interface with the
+#include "CVURobohawksVehicleWiFi.h" //contains the html + js and funcitons used to set up and interface with the
 //wifi client that will be used to control the vehicle
 #include "CaileanSorce_nodemcuESP8266_pinDefinitions.h" //contains the const ints used to convert the GPIO port names silkscreened on the
 //dev board to the esp8266 GPIO numbers
@@ -80,8 +80,8 @@ void setup()
 
   WiFiControl.setUpWiFi(wifiName, wifiPassword, 8, joyStickX, joyStickY, leftServoError, rightServoError, saveWheelError, runAutonomous); //set up the wifi stuff
 
-  rightServo.attach(D5); //attach rightservo to pin D5
-  leftServo.attach(D6);  //attach leftServo to pin D6
+  rightServo.attach(10); //attach rightservo to pin D5
+  leftServo.attach(12);  //attach leftServo to pin D6
 
   pinMode(flashButton, INPUT); //set the flash button pin to an input
 
