@@ -37,84 +37,84 @@
     WiFi->server.send(200, "text/html", WiFi->vehicleControlHTML); //send the main html web page to the wifi clinet
   }
 
-  // void handleSendWheelTuneHTML(CVURobohawksVehicleWiFi* WiFi)
-  // {
-  //   server.send(200, "text/html", wheelTuneHTML);
-  // }
+  void handleSendWheelTuneHTML(CVURobohawksVehicleWiFi* WiFi)
+  {
+    WiFi->server.send(200, "text/html", WiFi->wheelTuneHTML);
+  }
 
-  // //this function is called when the virtual joystick js code is requested (usually done by the main
-  // //html web page)
-  // void handleSendVirtualJoyStick(CVURobohawksVehicleWiFi* WiFi)
-  // {
-  //   WiFi->server.send(200, "application/javascript", WiFi->virtualJoyStickJS); //send the virtual joystick js code to the wifi client
-  // }
+  //this function is called when the virtual joystick js code is requested (usually done by the main
+  //html web page)
+  void handleSendVirtualJoyStick(CVURobohawksVehicleWiFi* WiFi)
+  {
+    WiFi->server.send(200, "application/javascript", WiFi->virtualJoyStickJS); //send the virtual joystick js code to the wifi client
+  }
 
-  // //the handleJoyStickData function is called when the wifi client sends a new set of joy stick XY values
-  // void handleJoyStickData(CVURobohawksVehicleWiFi* WiFi)
-  // {
-  //   DEBUG_SERIAL("updating joyStick possitions\n");
+  //the handleJoyStickData function is called when the wifi client sends a new set of joy stick XY values
+  void handleJoyStickData(CVURobohawksVehicleWiFi* WiFi)
+  {
+    DEBUG_SERIAL("updating joyStick possitions\n");
 
-  //   *joyStickXPtr = WiFi->server.arg("x").toInt(); //assign the first argument received to joyStickXPtr
-  //   *joyStickYPtr = WiFi->server.arg("y").toInt(); //assign the second argument received to joyStickYPtr
+    *WiFi->joyStickXPtr = WiFi->server.arg("x").toInt(); //assign the first argument received to joyStickXPtr
+    *WiFi->joyStickYPtr = WiFi->server.arg("y").toInt(); //assign the second argument received to joyStickYPtr
 
-  //   WiFi->server.send(200, "text/plain", ""); //respond to the server with 200 (okay) code
-  // }
+    WiFi->server.send(200, "text/plain", ""); //respond to the server with 200 (okay) code
+  }
 
-  // //this function is called when the main controller page requests autonomous to be run
-  // void handleRunAutonomous(CVURobohawksVehicleWiFi* WiFi)
-  // {
-  //   DEBUG_SERIAL("running autonomous\n");
-  //   //run the autonomous function (via the pointer to it)
-  //   WiFi->(*autoFunctionptr)();
+  //this function is called when the main controller page requests autonomous to be run
+  void handleRunAutonomous(CVURobohawksVehicleWiFi* WiFi)
+  {
+    DEBUG_SERIAL("running autonomous\n");
+    //run the autonomous function (via the pointer to it)
+    (*WiFi->autoFunctionptr)();
 
-  //   //reply to the wifi client with an "okay " message
-  //   WiFi->server.send(200, "text/plain", "");
-  // }
+    //reply to the wifi client with an "okay " message
+    WiFi->server.send(200, "text/plain", "");
+  }
 
-  // //this function is called when the wheel tune page requests the offsets be saved
-  // void handleSaveWheelErrors(CVURobohawksVehicleWiFi* WiFi)
-  // {
-  //   DEBUG_SERIAL("saving servo mid positions: left=");
-  //   DEBUG_SERIAL(WiFi->*leftWheelErrorPtr);
-  //   DEBUG_SERIAL(" right=");
-  //   DEBUG_SERIAL(WiFi->*rightWheelErrorPtr);
-  //   DEBUG_SERIAL("\n");
+  //this function is called when the wheel tune page requests the offsets be saved
+  void handleSaveWheelErrors(CVURobohawksVehicleWiFi* WiFi)
+  {
+    DEBUG_SERIAL("saving servo mid positions: left=");
+    DEBUG_SERIAL(*WiFi->leftWheelErrorPtr);
+    DEBUG_SERIAL(" right=");
+    DEBUG_SERIAL(*WiFi->rightWheelErrorPtr);
+    DEBUG_SERIAL("\n");
 
-  //   (WiFi->*saveWheelErrorFunctionPtr)(WiFi->*leftWheelErrorPtr, WiFi->*rightWheelErrorPtr);
+    (*WiFi->saveWheelErrorFunctionPtr)(*WiFi->leftWheelErrorPtr, *WiFi->rightWheelErrorPtr);
 
-  //   //reply to the wifi client with an "okay " message
-  //   WiFi->server.send(200, "text/plain", "");
-  // }
+    //reply to the wifi client with an "okay " message
+    WiFi->server.send(200, "text/plain", "");
+  }
 
-  // //this function is called when the wheel tune page requests the current wheel offsets
-  // void handleSendWheelErrors(CVURobohawksVehicleWiFi* WiFi)
-  // {
-  //   DEBUG_SERIAL("sending ServoPositions:  ");
+  //this function is called when the wheel tune page requests the current wheel offsets
+  void handleSendWheelErrors(CVURobohawksVehicleWiFi* WiFi)
+  {
+    DEBUG_SERIAL("sending ServoPositions:  ");
 
-  //   //build the string to send
-  //   char info[15] = "l=";
-  //   itoa((WiFi->*leftWheelErrorPtr), info + strlen(info), 10);
-  //   strcat(info, "&r=");
-  //   itoa((WiFi->*rightWheelErrorPtr), info + strlen(info), 10);
+    //build the string to send
+    char info[15] = "l=";
+    itoa((*WiFi->leftWheelErrorPtr), info + strlen(info), 10);
+    strcat(info, "&r=");
+    itoa((*WiFi->rightWheelErrorPtr), info + strlen(info), 10);
 
-  //   DEBUG_SERIAL(info);
-  //   DEBUG_SERIAL("\n");
-  //   //send the current servo mid positions to the page
-  //   WiFi->server.send(200, "text/plain", info);
-  // }
+    DEBUG_SERIAL(info);
+    DEBUG_SERIAL("\n");
+    //send the current servo mid positions to the page
+    WiFi->server.send(200, "text/plain", info);
+  }
 
-  // //this is called when the wheel tune page sends new offset values for the wheels
-  // void handleUpdateWheelErrors(CVURobohawksVehicleWiFi* WiFi)
-  // {
-  //   DEBUG_SERIAL("updating servo errors\n");
+  //this is called when the wheel tune page sends new offset values for the wheels
+  void handleUpdateWheelErrors(CVURobohawksVehicleWiFi* WiFi)
+  {
+    DEBUG_SERIAL("updating servo errors\n");
 
-  //   WiFi->*joyStickXPtr = WiFi->*joyStickYPtr = 0;
+    *WiFi->joyStickXPtr = *WiFi->joyStickYPtr = 0;
 
-  //   WiFi->*leftWheelErrorPtr = WiFi->server.arg(0).toInt();  //assign the first argument received
-  //   WiFi->*rightWheelErrorPtr = WiFi->server.arg(1).toInt(); //assign the second argument received
+    *WiFi->leftWheelErrorPtr = WiFi->server.arg(0).toInt();  //assign the first argument received
+    *WiFi->rightWheelErrorPtr = WiFi->server.arg(1).toInt(); //assign the second argument received
 
-  //   WiFi->server.send(200, "text/plain", "");
-  // }
+    WiFi->server.send(200, "text/plain", "");
+  }
 
 
   /**
@@ -161,14 +161,14 @@
 
     //define what function should be called by each request made by the wifi client
     server.on("/", std::bind(handleSendVehicleControlHTML, this));
-    // server.on("/CVURobohawksVehicleControlHTML.html", std::bind(handleSendVehicleControlHTML, this));
-    // server.on("/CVURobohawksVehicleServoTuneHTML.html", std::bind(handleSendWheelTuneHTML, this));
-    // server.on("/CVURobohawksVehicleJoyStick.js", std::bind(handleSendVirtualJoyStick, this));
-    // server.on("/runAutonomous", std::bind(handleRunAutonomous, this));
-    // server.on("/jsData.html", std::bind(handleJoyStickData, this));
-    // server.on("/saveWheelErrors", std::bind(handleSaveWheelErrors, this));
-    // server.on("/wheelErrors", std::bind(handleSendWheelErrors, this));
-    // server.on("/wheelErrors.html", std::bind(handleUpdateWheelErrors, this));
+    server.on("/CVURobohawksVehicleControlHTML.html", std::bind(handleSendVehicleControlHTML, this));
+    server.on("/CVURobohawksVehicleServoTuneHTML.html", std::bind(handleSendWheelTuneHTML, this));
+    server.on("/CVURobohawksVehicleJoyStick.js", std::bind(handleSendVirtualJoyStick, this));
+    server.on("/runAutonomous", std::bind(handleRunAutonomous, this));
+    server.on("/jsData.html", std::bind(handleJoyStickData, this));
+    server.on("/saveWheelErrors", std::bind(handleSaveWheelErrors, this));
+    server.on("/wheelErrors", std::bind(handleSendWheelErrors, this));
+    server.on("/wheelErrors.html", std::bind(handleUpdateWheelErrors, this));
 
     server.begin(); //start the server object
 

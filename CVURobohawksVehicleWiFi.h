@@ -58,26 +58,26 @@ private:
   //this function is called when a wifi client requests the main web page ("[IPaddress]/")
   friend void handleSendVehicleControlHTML(CVURobohawksVehicleWiFi*);
 
-  // friend void handleSendWheelTuneHTML(CVURobohawksVehicleWiFi*);
+  friend void handleSendWheelTuneHTML(CVURobohawksVehicleWiFi*);
 
-  // //this function is called when the virtual joystick js code is requested (usually done by the main
-  // //html web page)
-  // friend void handleSendVirtualJoyStick(CVURobohawksVehicleWiFi*);
+  //this function is called when the virtual joystick js code is requested (usually done by the main
+  //html web page)
+  friend void handleSendVirtualJoyStick(CVURobohawksVehicleWiFi*);
 
-  // //the handleJoyStickData function is called when the wifi client sends a new set of joy stick XY values
-  // friend void handleJoyStickData(CVURobohawksVehicleWiFi*);
+  //the handleJoyStickData function is called when the wifi client sends a new set of joy stick XY values
+  friend void handleJoyStickData(CVURobohawksVehicleWiFi*);
 
-  // //this function is called when the main controller page requests autonomous to be run
-  // friend void handleRunAutonomous(CVURobohawksVehicleWiFi*);
+  //this function is called when the main controller page requests autonomous to be run
+  friend void handleRunAutonomous(CVURobohawksVehicleWiFi*);
 
-  // //this function is called when the wheel tune page requests the offsets be saved
-  // friend void handleSaveWheelErrors(CVURobohawksVehicleWiFi*);
+  //this function is called when the wheel tune page requests the offsets be saved
+  friend void handleSaveWheelErrors(CVURobohawksVehicleWiFi*);
 
-  // //this function is called when the wheel tune page requests the current wheel offsets
-  // friend void handleSendWheelErrors(CVURobohawksVehicleWiFi*);
+  //this function is called when the wheel tune page requests the current wheel offsets
+  friend void handleSendWheelErrors(CVURobohawksVehicleWiFi*);
 
-  // //this is called when the wheel tune page sends new offset values for the wheels
-  // friend void handleUpdateWheelErrors(CVURobohawksVehicleWiFi*);
+  //this is called when the wheel tune page sends new offset values for the wheels
+  friend void handleUpdateWheelErrors(CVURobohawksVehicleWiFi*);
 
 public:
 
